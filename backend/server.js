@@ -11,7 +11,6 @@ app.use(express.json());
 
 if (!process.env.GROQ_API_KEY) {
   console.error("❌ GROQ_API_KEY missing");
-  process.exit(1);
 }
 
 const groq = new Groq({
@@ -26,7 +25,7 @@ app.post("/api/ask", async (req, res) => {
     const completion = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       messages: [{ role: "user", content: question }],
-      temperature: 1,
+      temperature: 0.5, // 👈 best for Q&A
     });
 
     const answer =
@@ -42,6 +41,7 @@ app.post("/api/ask", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("✅ FREE Groq AI backend running (llama-3.1-8b-instant)");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ FREE Groq AI backend running on port ${PORT}`);
 });

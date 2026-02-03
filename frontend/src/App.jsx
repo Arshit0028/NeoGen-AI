@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import "./index.css";
 
+const API_URL = "https://neogen-ai.onrender.com";
+
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [question, setQuestion] = useState("");
@@ -8,6 +10,7 @@ export default function App() {
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
+
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -27,21 +30,22 @@ export default function App() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:5000/api/ask", {
+      const res = await fetch(`${API_URL}/api/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
       });
+
       const data = await res.json();
 
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: data.answer || "No response" },
+        { role: "ai", text: data.answer || "No response from AI." },
       ]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "Something went wrong." },
+        { role: "ai", text: "⚠️ Unable to connect to server." },
       ]);
     } finally {
       setLoading(false);
@@ -61,12 +65,12 @@ export default function App() {
       <header className="top-bar">
         <div className="bot-info">
           <span className="status-dot" />
-          <span className="bot-name">AI ChatBot</span>
+          <span className="bot-name">NeoGen AI</span>
         </div>
 
-        {/* Dark Mode Toggle */}
+        {/* Dark mode slider */}
         <div className="theme-toggle">
-          <span className="label">{dark ? "🌑Darkmode" : "✨Lightmode"}</span>
+          <span className="label">{dark ? "Dark" : "Light"}</span>
           <label className="switch">
             <input
               type="checkbox"
@@ -108,7 +112,7 @@ export default function App() {
       {/* Input */}
       <footer className="input-bar">
         <textarea
-          placeholder="Type your message…"
+          placeholder="Ask anything…"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={handleKeyDown}
