@@ -2,45 +2,69 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import Groq from "groq-sdk";
+import rateLimit from "express-rate-limit";
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+/* CORS */
+app.use(
+  cors({
+    origin: "*",
+    methods: ["POST"],
+  }),
+);
+
 app.use(express.json());
 
-if (!process.env.GROQ_API_KEY) {
-  console.error("❌ GROQ_API_KEY missing");
-  process.exit(1);
-}
+/* 🔐 Rate limit: 30 RPM per IP */
+const askLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // 30 requests per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    answer: "⚠️ Too many requests. Please wait a minute and try again.",
+  },
+});
 
+/* Groq client */
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-app.post("/api/ask", async (req, res) => {
+/* API */
+app.post("/api/ask", askLimiter, async (req, res) => {
   const { question } = req.body;
-  if (!question) return res.json({ answer: "Question is required." });
+
+  if (!question) {
+    return res.json({ answer: "Question is required." });
+  }
 
   try {
     const completion = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       messages: [{ role: "user", content: question }],
-      temperature: 1,
+      temperature: 0.4,
+      max_tokens: 256,
     });
 
     const answer =
-      completion?.choices?.[0]?.message?.content ?? "⚠️ No response from AI.";
+      completion?.choices?.[0]?.message?.content || "⚠️ No response from AI.";
 
-    res.json({ answer });
+    return res.json({ answer });
   } catch (err) {
     console.error("Groq error:", err.message);
-    res.json({
+
+    return res.json({
       answer:
-        "⚠️ Groq free limit reached or model unavailable. Try again later.",
+        "⚠️ AI is busy right now (free tier limit). Please try again shortly.",
     });
   }
 });
+
+/* Render-compatible port */
 
 app.listen(5000, () => {
   console.log("✅ FREE Groq AI backend running (llama-3.1-8b-instant)");
