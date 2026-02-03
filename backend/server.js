@@ -65,7 +65,7 @@ app.post("/api/ask", askLimiter, async (req, res) => {
 });
 
 /* Render-compatible port */
-
-app.listen(5000, () => {
-  console.log("✅ FREE Groq AI backend running (llama-3.1-8b-instant)");
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Groq backend running with rate limits on port ${PORT}`);
 });
