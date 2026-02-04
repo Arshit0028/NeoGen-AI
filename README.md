@@ -34,10 +34,10 @@ It delivers a clean, intuitive chat experience inspired by modern messaging plat
 ## 🖼️ Screenshots
 
 ### 🌞 Light Mode
-![NeoGen-AI Light Mode](./light.png)
+![NeoGen-AI Light Mode](./frontend/public/light.png)
 
 ### 🌙 Dark Mode
-![NeoGen-AI Dark Mode](./dark.png)
+![NeoGen-AI Dark Mode](./frontend/public/dark.png)
 
 ---
 
