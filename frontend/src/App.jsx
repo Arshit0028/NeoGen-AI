@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import "./index.css";
 
 export default function App() {
@@ -8,12 +9,14 @@ export default function App() {
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
+
   const API_URL =
     import.meta.env.MODE === "development"
       ? "http://localhost:5000"
       : "https://neoge.onrender.com";
 
   const endRef = useRef(null);
+  const hasStarted = messages.length > 0;
 
   useEffect(() => {
     document.body.className = dark ? "dark" : "";
@@ -25,30 +28,27 @@ export default function App() {
   }, [messages, loading]);
 
   const askAI = async () => {
-    if (!question.trim()) return;
+    if (!question.trim() || loading) return;
 
-    setMessages((prev) => [...prev, { role: "user", text: question }]);
+    const q = question;
     setQuestion("");
+    setMessages((p) => [...p, { role: "user", text: q }]);
     setLoading(true);
 
     try {
       const res = await fetch(`${API_URL}/api/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question: q }),
       });
-
       const data = await res.json();
 
-      setMessages((prev) => [
-        ...prev,
+      setMessages((p) => [
+        ...p,
         { role: "ai", text: data.answer || "No response" },
       ]);
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "ai", text: "Something went wrong." },
-      ]);
+      setMessages((p) => [...p, { role: "ai", text: "Something went wrong." }]);
     } finally {
       setLoading(false);
     }
@@ -62,67 +62,67 @@ export default function App() {
   };
 
   return (
-    <div className={`page ${dark ? "dark" : "light"}`}>
+    <div className={`page ${dark ? "dark" : ""}`}>
       <div className="app">
-        {/* Header */}
+        {/* HEADER (minimal) */}
         <header className="top-bar">
-          <div className="bot-info">
-            <span className="status-dot" />
-            <span className="bot-name">AI ChatBot</span>
-          </div>
-
-          <div className="theme-toggle">
-            <span className="label">{dark ? "🌑 Dark" : "✨ Light"}</span>
-            <label className="switch">
-              <input
-                type="checkbox"
-                checked={dark}
-                onChange={() => setDark(!dark)}
-              />
-              <span className="slider" />
-            </label>
-          </div>
+          <span className="brand">NeoGen</span>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={dark}
+              onChange={() => setDark(!dark)}
+            />
+            <span className="slider" />
+          </label>
         </header>
 
-        {/* Chat */}
-        <main className="chat-area">
-          <div className="chat-wrapper">
+        {/* CHAT */}
+        <main className={`chat ${!hasStarted ? "center" : ""}`}>
+          <AnimatePresence>
             {messages.map((m, i) => (
-              <div key={i} className={`msg ${m.role}`}>
-                <div className="bubble">{m.text}</div>
-                {m.role === "ai" && (
-                  <span className="ai-badge">✨ Answered by AI</span>
-                )}
-              </div>
+              <motion.div
+                key={i}
+                className={`message ${m.role}`}
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                {m.text}
+              </motion.div>
             ))}
+          </AnimatePresence>
 
-            {loading && (
-              <div className="msg ai">
-                <div className="bubble typing">
-                  <span />
-                  <span />
-                  <span />
-                </div>
-              </div>
-            )}
+          {loading && (
+            <motion.div
+              className="message ai subtle"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              Thinking…
+            </motion.div>
+          )}
 
-            <div ref={endRef} />
-          </div>
+          <div ref={endRef} />
         </main>
 
-        {/* Input */}
-        <footer className="input-bar">
+        {/* INPUT (CENTER → BOTTOM) */}
+        <motion.div
+          className={`input ${!hasStarted ? "floating" : ""}`}
+          layout
+          transition={{ layout: { duration: 0.45, ease: "easeInOut" } }}
+        >
           <textarea
-            placeholder="Type your message…"
+            placeholder="Ask anything…"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={handleKeyDown}
             rows={1}
           />
-          <button onClick={askAI} disabled={!question.trim()}>
-            Send
+          <button onClick={askAI} disabled={!question.trim() || loading}>
+            →
           </button>
-        </footer>
+        </motion.div>
       </div>
     </div>
   );
