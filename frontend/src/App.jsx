@@ -62,68 +62,68 @@ export default function App() {
   };
 
   return (
-    <div className="app">
-      {/* Header */}
-      <header className="top-bar">
-        <div className="bot-info">
-          <span className="status-dot" />
-          <span className="bot-name">AI ChatBot</span>
-        </div>
+    <div className={`page ${dark ? "dark" : "light"}`}>
+      <div className="app">
+        {/* Header */}
+        <header className="top-bar">
+          <div className="bot-info">
+            <span className="status-dot" />
+            <span className="bot-name">AI ChatBot</span>
+          </div>
 
-        {/* Dark Mode Toggle */}
-        <div className="theme-toggle">
-          <span className="label">{dark ? "🌑Darkmode" : "✨Lightmode"}</span>
-          <label className="switch">
-            <input
-              type="checkbox"
-              checked={dark}
-              onChange={() => setDark(!dark)}
-            />
-            <span className="slider" />
-          </label>
-        </div>
-      </header>
+          <div className="theme-toggle">
+            <span className="label">{dark ? "🌑 Dark" : "✨ Light"}</span>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={dark}
+                onChange={() => setDark(!dark)}
+              />
+              <span className="slider" />
+            </label>
+          </div>
+        </header>
 
-      {/* Chat */}
-      <main className="chat-area">
-        <div className="chat-wrapper">
-          {messages.map((m, i) => (
-            <div key={i} className={`msg ${m.role}`}>
-              <div className="bubble">{m.text}</div>
-              {m.role === "ai" && (
-                <span className="ai-badge">✨ Answered by AI</span>
-              )}
-            </div>
-          ))}
-
-          {/* Typing dots */}
-          {loading && (
-            <div className="msg ai">
-              <div className="bubble typing">
-                <span />
-                <span />
-                <span />
+        {/* Chat */}
+        <main className="chat-area">
+          <div className="chat-wrapper">
+            {messages.map((m, i) => (
+              <div key={i} className={`msg ${m.role}`}>
+                <div className="bubble">{m.text}</div>
+                {m.role === "ai" && (
+                  <span className="ai-badge">✨ Answered by AI</span>
+                )}
               </div>
-            </div>
-          )}
+            ))}
 
-          <div ref={endRef} />
-        </div>
-      </main>
+            {loading && (
+              <div className="msg ai">
+                <div className="bubble typing">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </div>
+            )}
 
-      {/* Input */}
-      <footer className="input-bar">
-        <textarea
-          placeholder="Type your message…"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={1}
-        />
-        <button onClick={askAI} disabled={!question.trim()}>
-          Send
-        </button>
-      </footer>
+            <div ref={endRef} />
+          </div>
+        </main>
+
+        {/* Input */}
+        <footer className="input-bar">
+          <textarea
+            placeholder="Type your message…"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={handleKeyDown}
+            rows={1}
+          />
+          <button onClick={askAI} disabled={!question.trim()}>
+            Send
+          </button>
+        </footer>
+      </div>
     </div>
   );
 }
