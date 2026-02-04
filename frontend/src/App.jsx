@@ -11,7 +11,7 @@ export default function App() {
   const API_URL =
     import.meta.env.MODE === "development"
       ? "http://localhost:5000"
-      : "https://neogen-ai.onrender.com";
+      : "https://neoge.onrender.com";
 
   const endRef = useRef(null);
 
