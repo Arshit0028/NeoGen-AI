@@ -8,6 +8,11 @@ export default function App() {
   const [dark, setDark] = useState(
     () => localStorage.getItem("theme") === "dark",
   );
+  const API_URL =
+    import.meta.env.MODE === "development"
+      ? "http://localhost:5000"
+      : "https://neogen-ai.onrender.com";
+
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -27,11 +32,12 @@ export default function App() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://neogen-ai.onrender.com/api/ask", {
+      const res = await fetch(`${API_URL}/api/ask`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
       });
+
       const data = await res.json();
 
       setMessages((prev) => [
