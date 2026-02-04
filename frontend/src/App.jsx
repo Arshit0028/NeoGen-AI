@@ -41,6 +41,7 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q }),
       });
+
       const data = await res.json();
 
       setMessages((p) => [
@@ -64,7 +65,7 @@ export default function App() {
   return (
     <div className={`page ${dark ? "dark" : ""}`}>
       <div className="app">
-        {/* HEADER (minimal) */}
+        {/* HEADER */}
         <header className="top-bar">
           <span className="brand">NeoGen</span>
           <label className="switch">
@@ -83,30 +84,37 @@ export default function App() {
             {messages.map((m, i) => (
               <motion.div
                 key={i}
-                className={`message ${m.role}`}
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
+                className={`row ${m.role}`}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
               >
-                {m.text}
+                {/* AI avatar (LEFT) */}
+                {m.role === "ai" && <div className="avatar ai">AI</div>}
+
+                <div className="bubble">{m.text}</div>
+
+                {/* User avatar (RIGHT) */}
+                {m.role === "user" && <div className="avatar user">You</div>}
               </motion.div>
             ))}
           </AnimatePresence>
 
           {loading && (
             <motion.div
-              className="message ai subtle"
+              className="row ai"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
             >
-              Thinking…
+              <div className="avatar ai">AI</div>
+              <div className="bubble subtle">Thinking…</div>
             </motion.div>
           )}
 
           <div ref={endRef} />
         </main>
 
-        {/* INPUT (CENTER → BOTTOM) */}
+        {/* INPUT */}
         <motion.div
           className={`input ${!hasStarted ? "floating" : ""}`}
           layout
