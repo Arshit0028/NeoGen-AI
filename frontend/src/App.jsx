@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "./index.css";
+import "./App.css";
 
 export default function App() {
   const [messages, setMessages] = useState([]);
@@ -43,7 +44,6 @@ export default function App() {
       });
 
       const data = await res.json();
-
       setMessages((p) => [
         ...p,
         { role: "ai", text: data.answer || "No response" },
@@ -67,7 +67,7 @@ export default function App() {
       <div className="app">
         {/* HEADER */}
         <header className="top-bar">
-          <span className="brand">NeoGen</span>
+          <span className="brand">NeoGen AI🤖</span>
           <label className="switch">
             <input
               type="checkbox"
@@ -80,21 +80,19 @@ export default function App() {
 
         {/* CHAT */}
         <main className={`chat ${!hasStarted ? "center" : ""}`}>
+          {!hasStarted && <div>Ask anything to get started ✨</div>}
+
           <AnimatePresence>
             {messages.map((m, i) => (
               <motion.div
                 key={i}
                 className={`row ${m.role}`}
-                initial={{ opacity: 0, y: 8 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25 }}
               >
-                {/* AI avatar (LEFT) */}
                 {m.role === "ai" && <div className="avatar ai">AI</div>}
-
                 <div className="bubble">{m.text}</div>
-
-                {/* User avatar (RIGHT) */}
                 {m.role === "user" && <div className="avatar user">You</div>}
               </motion.div>
             ))}
@@ -115,17 +113,14 @@ export default function App() {
         </main>
 
         {/* INPUT */}
-        <motion.div
-          className={`input ${!hasStarted ? "floating" : ""}`}
-          layout
-          transition={{ layout: { duration: 0.45, ease: "easeInOut" } }}
-        >
+        <motion.div className={`input ${!hasStarted ? "floating" : ""}`} layout>
           <textarea
             placeholder="Ask anything…"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={handleKeyDown}
             rows={1}
+            inputMode="text"
           />
           <button onClick={askAI} disabled={!question.trim() || loading}>
             →
